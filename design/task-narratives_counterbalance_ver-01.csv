@@ -1,0 +1,145 @@
+Trial Number,Situation,Context,Narrative,isText,condition_name,stimulus_filename,Duration,Run Number,ISI
+1,Supplication,hospital,1,1,narratives,Narrative1Situation1.txt_def.txt,10,1,3
+2,Madness,hospital,1,1,narratives,Narrative1Situation2.txt_def.txt,14,1,2
+3,Murderous adultury,hospital,1,1,narratives,Narrative1Situation3.txt_def.txt,21,1,1
+4,Recovery of a lost one,town,1,1,narratives,Narrative1Situation4.txt_def.txt,18,1,3
+5,Slaying of kin unrecognized,town,1,1,narratives,Narrative1Situation5.txt_def.txt,11,1,3
+6,An enemy loved,town,1,1,narratives,Narrative1Situation6.txt_def.txt,25,1,1
+7,Fatal imprudence,prison,1,1,narratives,Narrative1Situation7.txt_def.txt,22,1,3
+8,Discovery of dishonour of loved one,prison,1,1,narratives,Narrative1Situation8.txt_def.txt,12,1,1
+9,Abduction,prison,1,1,narratives,Narrative1Situation9.txt_def.txt,29,1,8
+10,An enemy loved,forest,2,1,narratives,Narrative2Situation1.txt_def.txt,22,1,9
+11,Enmity of kin,forest,2,1,narratives,Narrative2Situation2.txt_def.txt,36,1,2
+12,Necessity of sacrificing loved ones,forest,2,1,narratives,Narrative2Situation3.txt_def.txt,9,1,4
+13,Murderous adultury,town,2,1,narratives,Narrative2Situation4.txt_def.txt,18,1,3
+14,Daring Enterprise,town,2,1,narratives,Narrative2Situation5.txt_def.txt,17,1,3
+15,Ambition,town,2,1,narratives,Narrative2Situation6.txt_def.txt,6,1,2
+16,Mistaken jealousy,hospital,2,1,narratives,Narrative2Situation7.txt_def.txt,19,1,1
+17,Discovery of dishonour of loved one,hospital,2,1,narratives,Narrative2Situation8.txt_def.txt,18,1,3
+18,Self-sacrifice for an ideal,hospital,2,1,narratives,Narrative2Situation9.txt_def.txt,15,1,3
+19,Slaying of kin unrecognized,town,3,1,narratives,Narrative3Situation1.txt_def.txt,32,2,6
+20,Erroneous judgement,town,3,1,narratives,Narrative3Situation2.txt_def.txt,17,2,4
+21,Revolt,town,3,1,narratives,Narrative3Situation3.txt_def.txt,10,2,2
+22,The enigma,city,3,1,narratives,Narrative3Situation4.txt_def.txt,28,2,1
+23,Deliverance,city,3,1,narratives,Narrative3Situation5.txt_def.txt,15,2,3
+24,Remorse,city,3,1,narratives,Narrative3Situation6.txt_def.txt,15,2,3
+25,Loss of loved one,forest,3,1,narratives,Narrative3Situation7.txt_def.txt,37,2,4
+26,All sacrificed for passion,forest,3,1,narratives,Narrative3Situation8.txt_def.txt,10,2,2
+27,Discovery of dishonour of loved one,forest,3,1,narratives,Narrative3Situation9.txt_def.txt,27,2,1
+28,Conflict with a god,swamp,4,1,narratives,Narrative4Situation1.txt_def.txt,22,2,2
+29,Adultery,swamp,4,1,narratives,Narrative4Situation2.txt_def.txt,25,2,5
+30,Slaying of kin unrecognized,swamp,4,1,narratives,Narrative4Situation3.txt_def.txt,21,2,2
+31,Fatal imprudence,hospital,4,1,narratives,Narrative4Situation4.txt_def.txt,21,2,1
+32,Erroneous judgement,hospital,4,1,narratives,Narrative4Situation5.txt_def.txt,26,2,1
+33,Necessity of sacrificing loved ones,hospital,4,1,narratives,Narrative4Situation6.txt_def.txt,23,2,1
+34,Recovery of a lost one,prison,4,1,narratives,Narrative4Situation7.txt_def.txt,19,2,1
+35,Crimes of love,prison,4,1,narratives,Narrative4Situation8.txt_def.txt,38,2,1
+36,Abduction,prison,4,1,narratives,Narrative4Situation9.txt_def.txt,13,2,5
+37,Enmity of kin,prison,5,0,narratives,Narrative5Situation1.mp3,11,3,5
+38,All sacrificed for passion,prison,5,0,narratives,Narrative5Situation2.mp3,27,3,3
+39,Discovery of dishonour of loved one,prison,5,0,narratives,Narrative5Situation3.mp3,11,3,3
+40,Crimes of love,park,5,0,narratives,Narrative5Situation4.mp3,18,3,1
+41,Necessity of sacrificing loved ones,park,5,0,narratives,Narrative5Situation5.mp3,13,3,5
+42,Adultery,park,5,0,narratives,Narrative5Situation6.mp3,3,3,3
+43,Revolt,beach,5,0,narratives,Narrative5Situation7.mp3,19,3,4
+44,An enemy loved,beach,5,0,narratives,Narrative5Situation8.mp3,6,3,3
+45,Mistaken jealousy,beach,5,0,narratives,Narrative5Situation9.mp3,37,3,3
+46,Recovery of a lost one,town,6,0,narratives,Narrative6Situation1.mp3,24,3,2
+47,The enigma,town,6,0,narratives,Narrative6Situation2.mp3,26,3,3
+48,Revolt,town,6,0,narratives,Narrative6Situation3.mp3,10,3,5
+49,Loss of loved one,swamp,6,0,narratives,Narrative6Situation4.mp3,10,3,2
+50,An enemy loved,swamp,6,0,narratives,Narrative6Situation5.mp3,6,3,2
+51,Daring Enterprise,swamp,6,0,narratives,Narrative6Situation6.mp3,9,3,2
+52,Self-sacrifice for kin,city,6,0,narratives,Narrative6Situation7.mp3,22,3,5
+53,Falling prey to misfortune,city,6,0,narratives,Narrative6Situation8.mp3,4,3,5
+54,Madness,city,6,0,narratives,Narrative6Situation9.mp3,8,3,4
+55,Deliverance,prison,7,0,narratives,Narrative7Situation1.mp3,52,4,2
+56,Adultery,prison,7,0,narratives,Narrative7Situation2.mp3,5,4,3
+57,Pursuit,prison,7,0,narratives,Narrative7Situation3.mp3,7,4,8
+58,Conflict with a god,park,7,0,narratives,Narrative7Situation4.mp3,9,4,3
+59,Recovery of a lost one,park,7,0,narratives,Narrative7Situation5.mp3,6,4,5
+60,Supplication,park,7,0,narratives,Narrative7Situation6.mp3,8,4,3
+61,Involuntary crimes of love,hospital,7,0,narratives,Narrative7Situation7.mp3,15,4,5
+62,An enemy loved,hospital,7,0,narratives,Narrative7Situation8.mp3,8,4,2
+63,Ambition,hospital,7,0,narratives,Narrative7Situation9.mp3,6,4,2
+64,Necessity of sacrificing loved ones,town,8,0,narratives,Narrative8Situation1.mp3,13,4,5
+65,Abduction,town,8,0,narratives,Narrative8Situation2.mp3,8,4,3
+66,Adultery,town,8,0,narratives,Narrative8Situation3.mp3,20,4,4
+67,Obtaining,city,8,0,narratives,Narrative8Situation4.mp3,12,4,3
+68,Supplication,city,8,0,narratives,Narrative8Situation5.mp3,6,4,2
+69,Rivalry of kin,city,8,0,narratives,Narrative8Situation6.mp3,4,4,2
+70,Recovery of a lost one,beach,8,0,narratives,Narrative8Situation7.mp3,10,4,3
+71,Rivalry of superior versus inferior,beach,8,0,narratives,Narrative8Situation8.mp3,10,4,3
+72,Slaying of kin unrecognized,beach,8,0,narratives,Narrative8Situation9.mp3,9,4,3
+73,Discovery of dishonour of loved one,forest,9,1,narratives,Narrative9Situation1.txt_def.txt,14,5,2
+74,Slaying of kin unrecognized,forest,9,1,narratives,Narrative9Situation2.txt_def.txt,9,5,2
+75,Disaster,forest,9,1,narratives,Narrative9Situation3.txt_def.txt,7,5,7
+76,Recovery of a lost one,prison,9,1,narratives,Narrative9Situation4.txt_def.txt,13,5,2
+77,Revolt,prison,9,1,narratives,Narrative9Situation5.txt_def.txt,11,5,1
+78,Rivalry of superior versus inferior,prison,9,1,narratives,Narrative9Situation6.txt_def.txt,16,5,1
+79,Conflict with a god,beach,9,1,narratives,Narrative9Situation7.txt_def.txt,11,5,3
+80,Obtaining,beach,9,1,narratives,Narrative9Situation8.txt_def.txt,12,5,4
+81,Madness,beach,9,1,narratives,Narrative9Situation9.txt_def.txt,6,5,2
+82,Adultery,park,10,1,narratives,Narrative10Situation1.txt_def.txt,21,5,6
+83,Recovery of a lost one,park,10,1,narratives,Narrative10Situation2.txt_def.txt,5,5,3
+84,Pursuit,park,10,1,narratives,Narrative10Situation3.txt_def.txt,10,5,3
+85,Ambition,prison,10,1,narratives,Narrative10Situation4.txt_def.txt,6,5,4
+86,An enemy loved,prison,10,1,narratives,Narrative10Situation5.txt_def.txt,13,5,5
+87,Slaying of kin unrecognized,prison,10,1,narratives,Narrative10Situation6.txt_def.txt,9,5,3
+88,Discovery of dishonour of loved one,swamp,10,1,narratives,Narrative10Situation7.txt_def.txt,4,5,3
+89,All sacrificed for passion,swamp,10,1,narratives,Narrative10Situation8.txt_def.txt,9,5,2
+90,Vengeance taken for kin upon kin,swamp,10,1,narratives,Narrative10Situation9.txt_def.txt,16,5,2
+91,Revolt,city,11,1,narratives,Narrative11Situation1.txt_def.txt,22,6,1
+92,Pursuit,city,11,1,narratives,Narrative11Situation2.txt_def.txt,6,6,1
+93,Self-sacrifice for an ideal,city,11,1,narratives,Narrative11Situation3.txt_def.txt,11,6,6
+94,Enmity of kin,forest,11,1,narratives,Narrative11Situation4.txt_def.txt,10,6,3
+95,Mistaken jealousy,forest,11,1,narratives,Narrative11Situation5.txt_def.txt,14,6,2
+96,Murderous adultury,forest,11,1,narratives,Narrative11Situation6.txt_def.txt,11,6,1
+97,Rivalry of superior versus inferior,beach,11,1,narratives,Narrative11Situation7.txt_def.txt,12,6,4
+98,All sacrificed for passion,beach,11,1,narratives,Narrative11Situation8.txt_def.txt,9,6,3
+99,Self-sacrifice for kin,beach,11,1,narratives,Narrative11Situation9.txt_def.txt,5,6,1
+100,Self-sacrifice for an ideal,park,12,1,narratives,Narrative12Situation1.txt_def.txt,30,6,4
+101,Remorse,park,12,1,narratives,Narrative12Situation2.txt_def.txt,14,6,2
+102,Deliverance,park,12,1,narratives,Narrative12Situation3.txt_def.txt,10,6,2
+103,Abduction,forest,12,1,narratives,Narrative12Situation4.txt_def.txt,22,6,2
+104,Fatal imprudence,forest,12,1,narratives,Narrative12Situation5.txt_def.txt,5,6,5
+105,Obstacles to love,forest,12,1,narratives,Narrative12Situation6.txt_def.txt,16,6,1
+106,Involuntary crimes of love,hospital,12,1,narratives,Narrative12Situation7.txt_def.txt,33,6,3
+107,Disaster,hospital,12,1,narratives,Narrative12Situation8.txt_def.txt,5,6,3
+108,Loss of loved one,hospital,12,1,narratives,Narrative12Situation9.txt_def.txt,25,6,5
+109,All sacrificed for passion,city,13,0,narratives,Narrative13Situation1.mp3,37,7,4
+110,Erroneous judgement,city,13,0,narratives,Narrative13Situation2.mp3,27,7,2
+111,Rivalry of kin,city,13,0,narratives,Narrative13Situation3.mp3,10,7,3
+112,An enemy loved,hospital,13,0,narratives,Narrative13Situation4.mp3,18,7,2
+113,Obstacles to love,hospital,13,0,narratives,Narrative13Situation5.mp3,12,7,2
+114,Conflict with a god,hospital,13,0,narratives,Narrative13Situation6.mp3,13,7,6
+115,Obtaining,prison,13,0,narratives,Narrative13Situation7.mp3,6,7,1
+116,Ambition,prison,13,0,narratives,Narrative13Situation8.mp3,4,7,4
+117,Disaster,prison,13,0,narratives,Narrative13Situation9.mp3,9,7,3
+118,Enmity of kin,city,14,0,narratives,Narrative14Situation1.mp3,26,7,6
+119,Ambition,city,14,0,narratives,Narrative14Situation2.mp3,22,7,1
+120,Murderous adultury,city,14,0,narratives,Narrative14Situation3.mp3,18,7,2
+121,Obstacles to love,hospital,14,0,narratives,Narrative14Situation4.mp3,7,7,2
+122,Fatal imprudence,hospital,14,0,narratives,Narrative14Situation5.mp3,4,7,1
+123,Disaster,hospital,14,0,narratives,Narrative14Situation6.mp3,7,7,1
+124,Loss of loved one,park,14,0,narratives,Narrative14Situation7.mp3,11,7,4
+125,Rivalry of kin,park,14,0,narratives,Narrative14Situation8.mp3,6,7,4
+126,Rivalry of superior versus inferior,park,14,0,narratives,Narrative14Situation9.mp3,13,7,4
+127,Madness,prison,15,0,narratives,Narrative15Situation1.mp3,14,8,1
+128,Adultery,prison,15,0,narratives,Narrative15Situation2.mp3,5,8,4
+129,Mistaken jealousy,prison,15,0,narratives,Narrative15Situation3.mp3,23,8,3
+130,Slaying of kin unrecognized,hospital,15,0,narratives,Narrative15Situation4.mp3,13,8,4
+131,Remorse,hospital,15,0,narratives,Narrative15Situation5.mp3,6,8,2
+132,Discovery of dishonour of loved one,hospital,15,0,narratives,Narrative15Situation6.mp3,16,8,3
+133,Ambition,swamp,15,0,narratives,Narrative15Situation7.mp3,11,8,1
+134,Daring Enterprise,swamp,15,0,narratives,Narrative15Situation8.mp3,16,8,4
+135,Falling prey to misfortune,swamp,15,0,narratives,Narrative15Situation9.mp3,10,8,3
+136,Ambition,swamp,16,0,narratives,Narrative16Situation1.mp3,31,8,3
+137,Disaster,swamp,16,0,narratives,Narrative16Situation2.mp3,5,8,4
+138,Crimes of love,swamp,16,0,narratives,Narrative16Situation3.mp3,8,8,6
+139,Conflict with a god,town,16,0,narratives,Narrative16Situation4.mp3,19,8,2
+140,Revolt,town,16,0,narratives,Narrative16Situation5.mp3,9,8,1
+141,Abduction,town,16,0,narratives,Narrative16Situation6.mp3,10,8,6
+142,All sacrificed for passion,forest,16,0,narratives,Narrative16Situation7.mp3,16,8,2
+143,Enmity of kin,forest,16,0,narratives,Narrative16Situation8.mp3,16,8,1
+144,Adultery,forest,16,0,narratives,Narrative16Situation9.mp3,10,8,3
