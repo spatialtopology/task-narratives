@@ -2,33 +2,32 @@ function narratives_final(sub, run_num)
 %% -----------------------------------------------------------------------------
 %                           Parameters
 % ------------------------------------------------------------------------------
-
-
-%% 0. Biopac parameters _________________________________________________
-task_dir = pwd;
-cd('/home/spacetop/repos/labjackpython');
-pe = pyenv;
-py.importlib.import_module('u3');
-% Check to see if u3 was imported correctly
-% py.help('u3')
-d = py.u3.U3();
-% set every channel to 0
-d.configIO(pyargs('FIOAnalog', int64(0), 'EIOAnalog', int64(0)));
-for FIONUM = 0:7
-d.setFIOState(pyargs('fioNum', int64(FIONUM), 'state', int64(0)));
-end
-
-
-cd(task_dir);
-
+script_dir = pwd;
+biopac = 0;
 % biopac channel
-channel_trigger    = 0;
-channel_fixation_1 = 1;
-channel_cue        = 2;
-channel_expect     = 3;
-channel_fixation_2 = 4;
-channel_administer = 5;
-channel_actual     = 6;
+channel_trigger     = 0;
+channel_fixation    = 1;
+channel_text        = 2;
+channel_audio       = 3;
+channel_feel        = 4;
+channel_expect      = 5;
+%% 0. Biopac parameters _________________________________________________
+if biopac == 1
+    script_dir = pwd;
+    cd('/home/spacetop/repos/labjackpython');
+    pe = pyenv;
+    py.importlib.import_module('u3');
+    % Check to see if u3 was imported correctly
+    % py.help('u3')
+    d = py.u3.U3();
+    % set every channel to 0
+    d.configIO(pyargs('FIOAnalog', int64(0), 'EIOAnalog', int64(0)));
+    for FIONUM = 0:7
+        d.setFIOState(pyargs('fioNum', int64(FIONUM), 'state', int64(0)));
+    end
+    cd(script_dir);
+
+end
 
 %% A. Psychtoolbox parameters _________________________________________________
 
@@ -65,38 +64,59 @@ o_run_num=run_num;
 run_num=reorder(run_num);
 
 %% B. Directories ______________________________________________________________
-% task_dir                       = '/home/spacetop/repos/narratives';
-script_dir                       = pwd;
-addpath(genpath(pwd))
-%main_dir                       = '/home/spacetop/repos/narratives';
-main_dir                       = fileparts(script_dir);
-taskname                       = 'narratives';
-% dir_text                       = fullfile(main_dir,'stimuli','text');
-dir_audio                      = fullfile(main_dir,'stimuli','audio_mp4_48000');
-% dir_audio                      = fullfile(main_dir,'stimuli','audio');
 
-% counterbalancefile             = fullfile(main_dir,'design', 'task-narratives_counterbalance_ver-01.csv');
+addpath(genpath(pwd))
+main_dir                       = fileparts(script_dir); % '/home/spacetop/repos/narratives';
+repo_dir                       = fileparts(fileparts(script_dir)); % '/home/spacetop/repos'
+taskname                       = 'narratives';
+% dir_text                     = fullfile(main_dir,'stimuli','text');
+% dir_audio                    = fullfile(main_dir,'stimuli','audio');
+% counterbalancefile           = fullfile(main_dir,'design', 'task-narratives_counterbalance_ver-01.csv');
+session_id                     = 2;
+bids_string                    = [strcat('spacetop_task-narratives'),...
+    strcat('_ses-',sprintf('%02d', session_id)),...
+    strcat('_sub-',sprintf('%04d', sub)), ...
+    strcat('_run-',sprintf('%02d', run_num))];
+sub_save_dir = fullfile(main_dir, 'data', strcat('sub-', sprintf('%04d', sub)),...
+    'beh' );
+repo_save_dir = fullfile(repo_dir, 'data', strcat('sub-', sprintf('%04d', sub)),...
+    'task-narratives');
+if ~exist(sub_save_dir, 'dir');     mkdir(sub_save_dir);    end
+if ~exist(repo_save_dir, 'dir');    mkdir(repo_save_dir);   end
+
+
+dir_audio                      = fullfile(main_dir,'stimuli','audio_mp4_48000');
 counterbalancefile             = fullfile(main_dir,'design', 'task-narratives_counterbalance_ver-01_48k_mp4.csv');
 countBalMat                    = readtable(counterbalancefile);
 countBalMat                    = countBalMat(countBalMat.RunNumber==run_num,:);
 
+
+
+
+
 if rem(sub,2)+1==1
-countBalMat=countBalMat([10:18,1:9],:);
+    countBalMat=countBalMat([10:18,1:9],:);
 end
+
+
+
+
 %% C. making output table ________________________________________________________
 vnames = {'src_subject_id', 'session_id','param_run_num','param_counterbalance_ver',...
-'param_stimulus_filename',...
+    'param_stimulus_filename','param_trigger_onset','param_start_biopac'...
     'event01_fixation_onset','event01_fixation_biopac','event01_fixation_duration',...
-    'event02_administer_type','event02_administer_filename','event02_administer_onset',...
-    'p3_actual_onset','p3_actual_responseonset','p3_actual_RT',...
-    'p4_actual_onset','p4_actual_responseonset','p4_actual_RT'};
+    'event02_administer_type','event02_administer_onset',...
+    'event02_text_biopac', 'event02_audio_biopac', ...
+    'event03_feel_displayonset','event03_feel_responseonset','event03_feel_RT', 'event03_feel_biopac',...
+    'event04_expect_displayonset','event04_expect_responseonset','event04_expect_RT', 'event04_expect_biopac', ...
+    'param_end_biopac', 'param_end_instruct_onset' ,'param_experiment_duration'};
 T                              = array2table(zeros(size(countBalMat,1),size(vnames,2)));
 T.Properties.VariableNames     = vnames;
 
 a                              = split(counterbalancefile,filesep);
 version_chunk                  = split(extractAfter(a(end),"ver-"),"_");
 T.src_subject_id(:)            = sub;
-T.session_id(:)                = 2;
+T.session_id(:)                = session_id;
 T.param_run_num(:)             = run_num;
 T.param_counterbalance_ver(:)  = str2double(version_chunk{1});
 T.param_stimulus_filename      = countBalMat.stimulus_filename;
@@ -133,13 +153,13 @@ for trl = 1:size(countBalMat,1)
         text_filename = [countBalMat.stimulus_filename{trl}];
         text_file = fullfile(dir_text, text_filename);
         text_time = showText(text_file,p);
-%         T.p2_administer_text_onset(trl,:) = text_time;
+        %         T.event02_administer_text_onset(trl,:) = text_time;
     else
         audio_filename = [countBalMat.stimulus_filename{trl}];
         audio_file = fullfile(dir_audio, audio_filename);		% Read audio file from filesystem:
-		[y{trl}, freq{trl}] = audioread(audio_file);
+        [y{trl}, freq{trl}] = audioread(audio_file);
     end
- end
+end
 %% -----------------------------------------------------------------------------
 %                              Start Experiment
 % ------------------------------------------------------------------------------
@@ -154,11 +174,13 @@ HideCursor;
 DisableKeysForKbCheck([]);
 WaitKeyPress(p.keys.start);
 Screen('TextSize',p.ptb.window,28);
+
 DrawFormattedText(p.ptb.window,'Waiting for trigger','center',p.ptb.screenYpixels/2,255);
+
 Screen('Flip',p.ptb.window);
 WaitKeyPress(p.keys.trigger);
 % T.param_trigger_onset(:)                = KbTriggerWait(p.keys.trigger, trigger_inputDevice);
-T.param_triggerOnset(:) = GetSecs;
+T.param_trigger_onset(:) = GetSecs;
 T.param_start_biopac(:)                   = biopac_linux_matlab(biopac, channel_trigger, 1);
 
 WaitSecs(TR*6);
@@ -175,17 +197,14 @@ for trl = 1:size(countBalMat,1)
         DrawFormattedText(p.ptb.window,'New Story','center',p.ptb.screenYpixels/2,255);
 
     else
-    Screen('DrawLines', p.ptb.window, p.fix.allCoords,...
-        p.fix.lineWidthPix, p.ptb.white, [p.ptb.xCenter p.ptb.yCenter], 2);
+        Screen('DrawLines', p.ptb.window, p.fix.allCoords,...
+            p.fix.lineWidthPix, p.ptb.white, [p.ptb.xCenter p.ptb.yCenter], 2);
     end
-    fStart1 = GetSecs;
     T.event01_fixation_onset(trl)         = Screen('Flip', p.ptb.window);
-    T.event01_fixation_biopac(trl)        = biopac_linux_matlab(biopac, channel_fixation_1, 1);
+    T.event01_fixation_biopac(trl)        = biopac_linux_matlab(biopac, channel_fixation, 1);
     WaitSecs(jitter1);
-    fEnd1 = GetSecs;
-
-    % T.event01_fixation_onset(trl) = fStart1;
-    T.event01_fixation_duration(trl) = fEnd1 - fStart1;
+    jitter1_end                           = biopac_linux_matlab(biopac, channel_fixation, 0);
+    T.event01_fixation_duration(trl)      = jitter1_end - T.event01_fixation_onset(trl);
 
     %% 2. situation ________________________________________________________________
 
@@ -197,168 +216,193 @@ for trl = 1:size(countBalMat,1)
         text_filename = [countBalMat.stimulus_filename{trl}];
         text_file = fullfile(dir_text, text_filename);
         text_time = showText(text_file,p);
-        T.p2_administer_text_onset(trl,:) = text_time;
+        T.event02_text_biopac(trl)        = biopac_linux_matlab(biopac, channel_text, 1);
+        T.event02_administer_type(trl)    = 'text';
+
+        T.event02_administer_onset(trl,:) = text_time;
+        biopac_linux_matlab(biopac, channel_text, 0);
 
     else
         audio_filename = [countBalMat.stimulus_filename{trl}];
         audio_file = fullfile(dir_audio, audio_filename);
+        T.event02_audio_biopac(trl)        = biopac_linux_matlab(biopac, channel_audio, 1);
         audio_time = playAudio(audio_file,y{trl},freq{trl});
-        T.p2_administer_audio_onset(trl) = audio_time;
+        biopac_linux_matlab(biopac, channel_audio, 1);
+        T.event02_administer_onset(trl) = audio_time;
+%        T.event02_administer_type{trl}    = {'audio'};
     end
 
     %% 3. rating of feelings ___________________________________________________
-    T.p3_actual_onset(trl) = GetSecs;
+    T.event03_feel_displayonset(trl) = GetSecs;
+    T.event03_feel_biopac(trl)          = biopac_linux_matlab(biopac, channel_feel, 1);
     [trajectory, RT, buttonPressOnset] = circular_rating_output(2,p,image_scale,'FEEL');
+    biopac_linux_matlab(biopac, channel_feel, 0);
     rating_Trajectory{trl,1} = trajectory;
-    T.p3_actual_responseonset(trl) = buttonPressOnset;
-    T.p3_actual_RT(trl) = RT;
+    T.event03_feel_responseonset(trl) = buttonPressOnset;
+    T.event03_feel_RT(trl) = RT;
 
     %% 3. rating of expectations ___________________________________________________
-    T.p4_actual_onset(trl) = GetSecs;
+    T.event04_expect_displayonset(trl) = GetSecs;
+    T.event04_expect_biopac(trl)          = biopac_linux_matlab(biopac, channel_expect, 1);
     [trajectory, RT, buttonPressOnset] = circular_rating_output(2,p,image_scale,'EXPECT');
+    biopac_linux_matlab(biopac, channel_expect, 0);
     rating_Trajectory{trl,2} = trajectory;
-    T.p4_actual_responseonset(trl) = buttonPressOnset;
-    T.p4_actual_RT(trl) = RT;
+    T.event04_expect_responseonset(trl) = buttonPressOnset;
+    T.event04_expect_RT(trl) = RT;
+
+        %% ________________________ 7. temporarily save file _______________________
+    tmp_file_name = fullfile(sub_save_dir,[strcat('sub-', sprintf('%04d', sub)), '_task-',taskname,'_TEMPbeh.csv' ]);
+    writetable(T,tmp_file_name);
     Screen('Close'); % HEEJUNG see if this helps
 end
 
-%% ______________________________ Instructions _________________________________
+%% ______________________________ End Instructions _________________________________
 Screen('TextSize',p.ptb.window,72);
 DrawFormattedText(p.ptb.window,'Run Finished','center',p.ptb.screenYpixels/2,255);
-Screen('Flip',p.ptb.window);
+T.param_end_instruct_onset(:)             = Screen('Flip',p.ptb.window);
+T.param_end_biopac(:)                     = biopac_linux_matlab(biopac, channel_trigger, 0);
 WaitKeyPress(KbName('e'));
+T.param_experiment_duration(:) = T.param_end_instruct_onset(1) - T.param_trigger_onset(1);
 
 %% save parameter ______________________________________________________________
-sub_save_dir = fullfile(main_dir, 'data', strcat('sub-', sprintf('%04d', sub)), 'beh' );
-if ~exist(sub_save_dir, 'dir')
-    mkdir(sub_save_dir)
-end
-
 saveFileName = fullfile(sub_save_dir,[strcat('sub-', sprintf('%04d', sub)), ...
     strcat('_run-', sprintf('%04d', o_run_num)), '_task-',taskname,'_beh.csv' ]);
+repoFileName = fullfile(repo_save_dir,[bids_string,'_beh.csv' ]);
 writetable(T,saveFileName);
+writetable(T,repoFileName);
 
 traject_saveFileName = fullfile(sub_save_dir, [strcat('sub-', sprintf('%03d', sub)), ...
     strcat('_run-', sprintf('%04d', o_run_num)), '_task-',taskname,'_beh_trajectory.mat' ]);
+traject_repoFileName = fullfile(repo_save_dir, [bids_string,'_beh_trajectory.mat' ]);
 save(traject_saveFileName, 'rating_Trajectory');
+save(traject_repoFileName, 'rating_Trajectory');
 
 psychtoolbox_saveFileName = fullfile(sub_save_dir, [strcat('sub-', sprintf('%04d', sub)),...
     strcat('_run-', sprintf('%04d', o_run_num)), '_task-',taskname,'_psychtoolbox_params.mat' ]);
+psychtoolbox_repoFileName = fullfile(repo_save_dir, [bids_string,'_psychtoolbox_params.mat' ]);
 save(psychtoolbox_saveFileName, 'p');
+save(psychtoolbox_repoFileName, 'p');
 
 sca;
 
 %% -----------------------------------------------------------------------------
 %                                   Function
 %-------------------------------------------------------------------------------
-% Function by Phil Kragel
-function t1=playAudio(audiofilename, y, freq)
-% Read audio file from filesystem:
-% [y, freq] = audioread(audiofilename);
-wavedata = y';
-nrchannels = size(wavedata,1); % Number of rows == number of channels.
-
-% Make sure we have always 2 channels stereo output.
-% Why? Because some low-end and embedded soundcards
-% only support 2 channels, not 1 channel, and we want
-% to be robust in our demos.
-if nrchannels < 2
-    wavedata = [wavedata ; wavedata];
-    nrchannels = 2;
-end
-
-%device = [];
-device = [3];
-
-try
-    % Try with the 'freq'uency we wanted:
-    pahandle = PsychPortAudio('Open', device, [], 0, freq, nrchannels);
-catch
-    % Failed. Retry with default frequency as suggested by device:
-    fprintf('\nCould not open device at wanted playback frequency of %i Hz. Will retry with device default frequency.\n', freq);
-    fprintf('Sound may sound a bit out of tune, ...\n\n');
-
-    psychlasterror('reset');
-    pahandle = PsychPortAudio('Open', device, [], 0, [], nrchannels);
-end
-
-% Fill the audio playback buffer with the audio data 'wavedata':
-PsychPortAudio('FillBuffer', pahandle, wavedata);
-
-% Start audio playback for 'repetitions' repetitions of the sound data,
-% start it immediately (0) and wait for the playback to start, return onset
-% timestamp.
-t1 = PsychPortAudio('Start', pahandle, 1, 0, 1);
-pause(size(y,1)/freq);
-
-
-
-
-
-% Stop playback:
-PsychPortAudio('Stop', pahandle);
-
-% Close the audio device:
-PsychPortAudio('Close', pahandle);
-
-end
-%% -----------------------------------------------------------------------------
-%                                   Function
-%-------------------------------------------------------------------------------
-
-function WaitKeyPress(kID)
-    while KbCheck(-3); end  % Wait until all keys are released.
-
-    while 1
-        % Check the state of the keyboard.
-        [ keyIsDown, ~, keyCode ] = KbCheck(-3);
-        % If the user is pressing a key, then display its code number and name.
-        if keyIsDown
-
-            if keyCode(p.keys.esc)
-                cleanup; break;
-            elseif keyCode(kID)
-                break;
-            end
-            % make sure key's released
-            while KbCheck(-3); end
+    function [time] = biopac_linux_matlab(biopac, channel_num, state_num)
+        if biopac
+            d.setFIOState(pyargs('fioNum', int64(channel_num), 'state', int64(state_num)))
+            time = GetSecs;
+        else
+            time = GetSecs;
+            return
         end
     end
-end
+
 % Function by Phil Kragel
-function timing=showText(textfilename,p)
-% Read text file from filesystem:
+    function t1=playAudio(audiofilename, y, freq)
+        % Read audio file from filesystem:
+        % [y, freq] = audioread(audiofilename);
+        wavedata = y';
+        nrchannels = size(wavedata,1); % Number of rows == number of channels.
 
-fid = fopen(textfilename, 'r');
-if fid == -1
-    error('Cannot open file for reading: %s', textfilename);
-end
-DataC = textscan(fid, '%s', 'delimiter', '\n', 'whitespace', '');
-Data  = DataC{1}{1};
-fclose(fid);
-Data=string(Data);
+        % Make sure we have always 2 channels stereo output.
+        % Why? Because some low-end and embedded soundcards
+        % only support 2 channels, not 1 channel, and we want
+        % to be robust in our demos.
+        if nrchannels < 2
+            wavedata = [wavedata ; wavedata];
+            nrchannels = 2;
+        end
+
+        %device = [];
+        device = [3];
+
+        try
+            % Try with the 'freq'uency we wanted:
+            pahandle = PsychPortAudio('Open', device, [], 0, freq, nrchannels);
+        catch
+            % Failed. Retry with default frequency as suggested by device:
+            fprintf('\nCould not open device at wanted playback frequency of %i Hz. Will retry with device default frequency.\n', freq);
+            fprintf('Sound may sound a bit out of tune, ...\n\n');
+
+            psychlasterror('reset');
+            pahandle = PsychPortAudio('Open', device, [], 0, [], nrchannels);
+        end
+
+        % Fill the audio playback buffer with the audio data 'wavedata':
+        PsychPortAudio('FillBuffer', pahandle, wavedata);
+
+        % Start audio playback for 'repetitions' repetitions of the sound data,
+        % start it immediately (0) and wait for the playback to start, return onset
+        % timestamp.
+        t1 = PsychPortAudio('Start', pahandle, 1, 0, 1);
+        pause(size(y,1)/freq);
 
 
 
-%%% configure screen
-dspl.screenWidth = p.ptb.rect(3);
-dspl.screenHeight = p.ptb.rect(4);
-dspl.xcenter = dspl.screenWidth/2;
-dspl.ycenter = dspl.screenHeight/2;
 
-Screen('TextSize',p.ptb.window,28);
-split_text=split(Data);
-ci=0;
-for d=1:10:length(split_text)
 
-    ci=ci+1;
-    text_to_show =  join(split_text(d:min(d+9,length(split_text))));
-    DrawFormattedText(p.ptb.window,text_to_show{1},'center',dspl.ycenter,255);
-    timing.initialized(ci) = Screen('Flip',p.ptb.window);
-    pause(length(d:min(d+9,length(split_text)))/3)
-end
-Screen('Close')
+        % Stop playback:
+        PsychPortAudio('Stop', pahandle);
 
-end
+        % Close the audio device:
+        PsychPortAudio('Close', pahandle);
+
+    end
+
+    function WaitKeyPress(kID)
+        while KbCheck(-3); end  % Wait until all keys are released.
+
+        while 1
+            % Check the state of the keyboard.
+            [ keyIsDown, ~, keyCode ] = KbCheck(-3);
+            % If the user is pressing a key, then display its code number and name.
+            if keyIsDown
+
+                if keyCode(p.keys.esc)
+                    cleanup; break;
+                elseif keyCode(kID)
+                    break;
+                end
+                % make sure key's released
+                while KbCheck(-3); end
+            end
+        end
+    end
+% Function by Phil Kragel
+    function timing=showText(textfilename,p)
+        % Read text file from filesystem:
+
+        fid = fopen(textfilename, 'r');
+        if fid == -1
+            error('Cannot open file for reading: %s', textfilename);
+        end
+        DataC = textscan(fid, '%s', 'delimiter', '\n', 'whitespace', '');
+        Data  = DataC{1}{1};
+        fclose(fid);
+        Data=string(Data);
+
+
+
+        %%% configure screen
+        dspl.screenWidth = p.ptb.rect(3);
+        dspl.screenHeight = p.ptb.rect(4);
+        dspl.xcenter = dspl.screenWidth/2;
+        dspl.ycenter = dspl.screenHeight/2;
+
+        Screen('TextSize',p.ptb.window,28);
+        split_text=split(Data);
+        ci=0;
+        for d=1:10:length(split_text)
+
+            ci=ci+1;
+            text_to_show =  join(split_text(d:min(d+9,length(split_text))));
+            DrawFormattedText(p.ptb.window,text_to_show{1},'center',dspl.ycenter,255);
+            timing.initialized(ci) = Screen('Flip',p.ptb.window);
+            pause(length(d:min(d+9,length(split_text)))/3)
+        end
+        Screen('Close')
+
+    end
 ShowCursor;
 end
