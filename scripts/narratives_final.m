@@ -3,7 +3,7 @@ function narratives_final(sub, run_num)
 %                           Parameters
 % ------------------------------------------------------------------------------
 script_dir = pwd;
-biopac = 0;
+biopac = 1;
 % biopac channel
 channel_trigger     = 0;
 channel_fixation    = 1;
@@ -16,7 +16,11 @@ if biopac == 1
     script_dir = pwd;
     cd('/home/spacetop/repos/labjackpython');
     pe = pyenv;
-    py.importlib.import_module('u3');
+    try
+        py.importlib.import_module('u3');
+    catch
+        warning("u3 already imported!");
+    end
     % Check to see if u3 was imported correctly
     % py.help('u3')
     d = py.u3.U3();
@@ -84,7 +88,7 @@ repo_save_dir = fullfile(repo_dir, 'data', strcat('sub-', sprintf('%04d', sub)),
 if ~exist(sub_save_dir, 'dir');     mkdir(sub_save_dir);    end
 if ~exist(repo_save_dir, 'dir');    mkdir(repo_save_dir);   end
 
-
+dir_text                       = fullfile(main_dir,'stimuli','text');
 dir_audio                      = fullfile(main_dir,'stimuli','audio_mp4_48000');
 counterbalancefile             = fullfile(main_dir,'design', 'task-narratives_counterbalance_ver-01_48k_mp4.csv');
 countBalMat                    = readtable(counterbalancefile);
@@ -160,6 +164,7 @@ for trl = 1:size(countBalMat,1)
         [y{trl}, freq{trl}] = audioread(audio_file);
     end
 end
+rating_tex = Screen('MakeTexture', p.ptb.window, imread(image_scale)); % pure rating scale
 %% -----------------------------------------------------------------------------
 %                              Start Experiment
 % ------------------------------------------------------------------------------
@@ -227,7 +232,7 @@ for trl = 1:size(countBalMat,1)
         audio_file = fullfile(dir_audio, audio_filename);
         T.event02_audio_biopac(trl)        = biopac_linux_matlab(biopac, channel_audio, 1);
         audio_time = playAudio(audio_file,y{trl},freq{trl});
-        biopac_linux_matlab(biopac, channel_audio, 1);
+        biopac_linux_matlab(biopac, channel_audio, 0);
         T.event02_administer_onset(trl) = audio_time;
 %        T.event02_administer_type{trl}    = {'audio'};
     end
@@ -235,7 +240,7 @@ for trl = 1:size(countBalMat,1)
     %% 3. rating of feelings ___________________________________________________
     T.event03_feel_displayonset(trl) = GetSecs;
     T.event03_feel_biopac(trl)          = biopac_linux_matlab(biopac, channel_feel, 1);
-    [trajectory, RT, buttonPressOnset] = circular_rating_output(2,p,image_scale,'FEEL');
+    [trajectory, RT, buttonPressOnset] = circular_rating_output(2,p,rating_tex,'FEEL');
     biopac_linux_matlab(biopac, channel_feel, 0);
     rating_Trajectory{trl,1} = trajectory;
     T.event03_feel_responseonset(trl) = buttonPressOnset;
@@ -244,7 +249,7 @@ for trl = 1:size(countBalMat,1)
     %% 3. rating of expectations ___________________________________________________
     T.event04_expect_displayonset(trl) = GetSecs;
     T.event04_expect_biopac(trl)          = biopac_linux_matlab(biopac, channel_expect, 1);
-    [trajectory, RT, buttonPressOnset] = circular_rating_output(2,p,image_scale,'EXPECT');
+    [trajectory, RT, buttonPressOnset] = circular_rating_output(2,p,rating_tex,'EXPECT');
     biopac_linux_matlab(biopac, channel_expect, 0);
     rating_Trajectory{trl,2} = trajectory;
     T.event04_expect_responseonset(trl) = buttonPressOnset;
@@ -253,7 +258,7 @@ for trl = 1:size(countBalMat,1)
         %% ________________________ 7. temporarily save file _______________________
     tmp_file_name = fullfile(sub_save_dir,[strcat('sub-', sprintf('%04d', sub)), '_task-',taskname,'_TEMPbeh.csv' ]);
     writetable(T,tmp_file_name);
-    Screen('Close'); % HEEJUNG see if this helps
+%     Screen('Close'); % HEEJUNG see if this helps
 end
 
 %% ______________________________ End Instructions _________________________________
@@ -263,6 +268,7 @@ T.param_end_instruct_onset(:)             = Screen('Flip',p.ptb.window);
 T.param_end_biopac(:)                     = biopac_linux_matlab(biopac, channel_trigger, 0);
 WaitKeyPress(KbName('e'));
 T.param_experiment_duration(:) = T.param_end_instruct_onset(1) - T.param_trigger_onset(1);
+Screen('Close');
 
 %% save parameter ______________________________________________________________
 saveFileName = fullfile(sub_save_dir,[strcat('sub-', sprintf('%04d', sub)), ...
