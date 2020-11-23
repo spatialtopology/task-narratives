@@ -1,4 +1,4 @@
-function [trajectory, RT, buttonPressOnset] = circular_rating_output(duration, p, image_scale, rating_type)
+function [trajectory, RT, buttonPressOnset] = circular_rating_output(duration, p, scale_tex, rating_type)
 % global screenNumber window windowRect xCenter yCenter screenXpixels screenYpixels
 % shows a circular rating scale and records mouse position
 %
@@ -56,12 +56,13 @@ dspl.cscale.ycenter = 407;
 dspl.cscale.w = Screen('OpenOffscreenWindow',p.ptb.screenNumber);
 
 Screen('FillRect',dspl.cscale.w,0);
-dspl.cscale.texture = Screen('MakeTexture',p.ptb.window, imread(image_scale));
+% dspl.cscale.texture = Screen('MakeTexture',p.ptb.window, imread(image_scale));
 % placement
 dspl.cscale.rect = [...
     [dspl.xcenter dspl.ycenter]-[0.5*dspl.cscale.width 0.5*dspl.cscale.height] ...
     [dspl.xcenter dspl.ycenter]+[0.5*dspl.cscale.width 0.5*dspl.cscale.height]];
-Screen('DrawTexture',dspl.cscale.w,dspl.cscale.texture,[],dspl.cscale.rect);
+% Screen('DrawTexture',dspl.cscale.w,dspl.cscale.texture,[],dspl.cscale.rect);
+Screen('DrawTexture', dspl.cscale.w, scale_tex, [],dspl.cscale.rect); %HEEJUNG
 Screen('TextSize',dspl.cscale.w,24);
 
 % determine cursor parameters for all scales
