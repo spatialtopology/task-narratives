@@ -7,7 +7,10 @@ sub = input(prompt);
 prompt = ' run number (in raw number form, i.e. 1, 2, or 3): ';
 srun = input(prompt);
 
-narratives_final(sub, srun)
+prompt = 'BIOPAC (YES=1 NO=0) : ';
+biopac = input(prompt);
+
+narratives_final(sub, srun, biopac)
 
 
 

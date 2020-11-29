@@ -1,9 +1,9 @@
-function narratives_final(sub, run_num)
+function narratives_final(sub, run_num, biopac)
 %% -----------------------------------------------------------------------------
 %                           Parameters
 % ------------------------------------------------------------------------------
 script_dir = pwd;
-biopac = 1;
+
 % biopac channel
 channel_trigger     = 0;
 channel_fixation    = 1;
@@ -23,11 +23,11 @@ if biopac == 1
     end
     % Check to see if u3 was imported correctly
     % py.help('u3')
-    d = py.u3.U3();
+    b = py.u3.U3();
     % set every channel to 0
-    d.configIO(pyargs('FIOAnalog', int64(0), 'EIOAnalog', int64(0)));
+    b.configIO(pyargs('FIOAnalog', int64(0), 'EIOAnalog', int64(0)));
     for FIONUM = 0:7
-        d.setFIOState(pyargs('fioNum', int64(FIONUM), 'state', int64(0)));
+        b.setFIOState(pyargs('fioNum', int64(FIONUM), 'state', int64(0)));
     end
     cd(script_dir);
 
@@ -152,11 +152,12 @@ image_filepath                 = fullfile(main_dir,'stimuli','ratingscale');
 image_scale_filename           = lower(['task-',taskname,'_scale.jpg']);
 image_scale                    = fullfile(image_filepath,image_scale_filename);
 
+%% preload
 for trl = 1:size(countBalMat,1)
     if countBalMat.isText(trl)
         text_filename = [countBalMat.stimulus_filename{trl}];
         text_file = fullfile(dir_text, text_filename);
-        text_time = showText(text_file,p);
+%         text_time = showText(text_file,p);
         %         T.event02_administer_text_onset(trl,:) = text_time;
     else
         audio_filename = [countBalMat.stimulus_filename{trl}];
@@ -221,10 +222,11 @@ for trl = 1:size(countBalMat,1)
         text_filename = [countBalMat.stimulus_filename{trl}];
         text_file = fullfile(dir_text, text_filename);
         text_time = showText(text_file,p);
+        size(text_time);
         T.event02_text_biopac(trl)        = biopac_linux_matlab(biopac, channel_text, 1);
-        T.event02_administer_type(trl)    = 'text';
+       % T.event02_administer_type{trl}    = 'text';
 
-        T.event02_administer_onset(trl,:) = text_time;
+        %T.event02_administer_onset(trl) = text_time;
         biopac_linux_matlab(biopac, channel_text, 0);
 
     else
@@ -289,8 +291,10 @@ psychtoolbox_repoFileName = fullfile(repo_save_dir, [bids_string,'_psychtoolbox_
 save(psychtoolbox_saveFileName, 'p');
 save(psychtoolbox_repoFileName, 'p');
 
-sca;
-
+sca; 
+if biopac
+    b.close()
+end
 %% -----------------------------------------------------------------------------
 %                                   Function
 %-------------------------------------------------------------------------------
@@ -407,7 +411,7 @@ sca;
             timing.initialized(ci) = Screen('Flip',p.ptb.window);
             pause(length(d:min(d+9,length(split_text)))/3)
         end
-        Screen('Close')
+%         Screen('Close')
 
     end
 ShowCursor;
