@@ -1,8 +1,14 @@
-function narratives_final(sub, run_num, biopac)
+function narratives_final(sub, run_num, biopac, fMRI)
 %% -----------------------------------------------------------------------------
 %                           Parameters
 % ------------------------------------------------------------------------------
+
 script_dir = pwd;
+% debug = 0;
+% if debug
+%     ListenChar(0);
+%     PsychDebugWindowConfiguration;
+% end
 
 % biopac channel
 channel_trigger     = 0;
@@ -38,6 +44,7 @@ end
 global p
 Screen('Preference', 'SkipSyncTests', 0);
 PsychDefaultSetup(2);
+
 screens                        = Screen('Screens'); % Get the screen numbers
 p.ptb.screenNumber             = max(screens); % Draw to the external screen if avaliable
 p.ptb.white                    = WhiteIndex(p.ptb.screenNumber); % Define black and white
@@ -58,14 +65,22 @@ p.fix.allCoords                = [p.fix.xCoords; p.fix.yCoords];
 
 % Perform basic initialization of the sound driver:
 InitializePsychSound;
-
+HideCursor;
 
 % four random orders -- shuffle runs (not trials)
 orders=[1:4; 2 4 1 3; 1 3 2 4; 4 3 2 1];
 % reorder = orders(rem(sub,4)+1,:);
 reorder = orders(rem(55,4)+1,:);
 o_run_num=run_num;
-run_num=reorder(run_num);
+shuffled_run_num=reorder(run_num);
+
+% if fMRI
+% [index, productname, allinfo] = GetMouseIndices();
+% trigger_index = find(contains(productname, 'Current Designs'));
+% trigger_inputDevice = index(trigger_index);
+% else trigger_inputDevice = -3;
+% end
+
 
 %% B. Directories ______________________________________________________________
 
@@ -77,10 +92,10 @@ taskname                       = 'narratives';
 % dir_audio                    = fullfile(main_dir,'stimuli','audio');
 % counterbalancefile           = fullfile(main_dir,'design', 'task-narratives_counterbalance_ver-01.csv');
 session_id                     = 2;
-bids_string                    = [strcat('spacetop_task-narratives'),...
+bids_string                    = [strcat('sub-',sprintf('%04d', sub)), ...
     strcat('_ses-',sprintf('%02d', session_id)),...
-    strcat('_sub-',sprintf('%04d', sub)), ...
-    strcat('_run-',sprintf('%02d', run_num))];
+    strcat('_task-', taskname),...
+    strcat('_run-',sprintf('%02d', o_run_num))];
 sub_save_dir = fullfile(main_dir, 'data', strcat('sub-', sprintf('%04d', sub)),...
     'beh' );
 repo_save_dir = fullfile(repo_dir, 'data', strcat('sub-', sprintf('%04d', sub)),...
@@ -92,7 +107,7 @@ dir_text                       = fullfile(main_dir,'stimuli','text');
 dir_audio                      = fullfile(main_dir,'stimuli','audio_mp4_48000');
 counterbalancefile             = fullfile(main_dir,'design', 'task-narratives_counterbalance_ver-01_48k_mp4.csv');
 countBalMat                    = readtable(counterbalancefile);
-countBalMat                    = countBalMat(countBalMat.RunNumber==run_num,:);
+countBalMat                    = countBalMat(countBalMat.RunNumber==shuffled_run_num,:);
 
 
 
@@ -106,7 +121,7 @@ end
 
 
 %% C. making output table ________________________________________________________
-vnames = {'src_subject_id', 'session_id','param_run_num','param_counterbalance_ver',...
+vnames = {'src_subject_id', 'session_id','param_run_num','shuffled_run_from_counterbalance','param_counterbalance_ver',...
     'param_stimulus_filename','param_trigger_onset','param_start_biopac'...
     'event01_fixation_onset','event01_fixation_biopac','event01_fixation_duration',...
     'event02_administer_type','event02_administer_onset',...
@@ -114,14 +129,23 @@ vnames = {'src_subject_id', 'session_id','param_run_num','param_counterbalance_v
     'event03_feel_displayonset','event03_feel_responseonset','event03_feel_RT', 'event03_feel_biopac',...
     'event04_expect_displayonset','event04_expect_responseonset','event04_expect_RT', 'event04_expect_biopac', ...
     'param_end_biopac', 'param_end_instruct_onset' ,'param_experiment_duration'};
-T                              = array2table(zeros(size(countBalMat,1),size(vnames,2)));
-T.Properties.VariableNames     = vnames;
+varTypes = {'double', 'double', 'double', 'double', 'double', ...
+    'string', 'double', 'double', ...
+    'double', 'double', 'double',...
+    'string', 'double',...
+    'double', 'double',...
+    'double', 'double', 'double', 'double', ...
+    'double', 'double', 'double', 'double', ...
+    'double', 'double', 'double'};
+
+T = table('Size', [size(countBalMat,1) size(vnames,2)],'VariableNames', vnames, 'VariableTypes', varTypes);
 
 a                              = split(counterbalancefile,filesep);
 version_chunk                  = split(extractAfter(a(end),"ver-"),"_");
 T.src_subject_id(:)            = sub;
 T.session_id(:)                = session_id;
-T.param_run_num(:)             = run_num;
+T.param_run_num(:)             = o_run_num;
+T.shuffled_run_from_counterbalance(:)   = shuffled_run_num;
 T.param_counterbalance_ver(:)  = str2double(version_chunk{1});
 T.param_stimulus_filename      = countBalMat.stimulus_filename;
 
@@ -136,12 +160,12 @@ p.keys.trigger                 = KbName('5%');
 p.keys.start                   = KbName('s');
 p.keys.end                     = KbName('e');
 
-[id, name]                     = GetKeyboardIndices;
-trigger_index                  = find(contains(name, 'Current Designs'));
-trigger_inputDevice            = id(trigger_index);
-
-keyboard_index                 = find(contains(name, 'AT Translated Set 2 Keyboard'));
-keyboard_inputDevice           = id(keyboard_index);
+% [id, name]                     = GetKeyboardIndices;
+% trigger_index                  = find(contains(name, 'Current Designs'));
+% trigger_inputDevice            = id(trigger_index);
+% 
+% keyboard_index                 = find(contains(name, 'AT Translated Set 2 Keyboard'));
+% keyboard_inputDevice           = id(keyboard_index);
 
 %% E. fmri Parameters __________________________________________________________
 TR                             = 0.46;
@@ -153,10 +177,12 @@ image_scale_filename           = lower(['task-',taskname,'_scale.jpg']);
 image_scale                    = fullfile(image_filepath,image_scale_filename);
 
 %% preload
+DrawFormattedText(p.ptb.window,sprintf('LOADING\n\n0%% complete'),'center','center',p.ptb.white );
+Screen('Flip',p.ptb.window);
 for trl = 1:size(countBalMat,1)
     if countBalMat.isText(trl)
-        text_filename = [countBalMat.stimulus_filename{trl}];
-        text_file = fullfile(dir_text, text_filename);
+%         text_filename = [countBalMat.stimulus_filename{trl}];
+%         text_file = fullfile(dir_text, text_filename);
 %         text_time = showText(text_file,p);
         %         T.event02_administer_text_onset(trl,:) = text_time;
     else
@@ -164,6 +190,8 @@ for trl = 1:size(countBalMat,1)
         audio_file = fullfile(dir_audio, audio_filename);		% Read audio file from filesystem:
         [y{trl}, freq{trl}] = audioread(audio_file);
     end
+    DrawFormattedText(p.ptb.window,sprintf('LOADING\n\n%d%% complete', ceil(100*trl/size(countBalMat,1))),'center','center',p.ptb.white);
+    Screen('Flip',p.ptb.window);
 end
 rating_tex = Screen('MakeTexture', p.ptb.window, imread(image_scale)); % pure rating scale
 %% -----------------------------------------------------------------------------
@@ -176,8 +204,8 @@ DrawFormattedText(p.ptb.window,'.','center',p.ptb.screenYpixels/2,255);
 Screen('Flip',p.ptb.window);
 
 %% _______________________ Wait for Trigger to Begin ___________________________
-HideCursor;
-DisableKeysForKbCheck([]);
+
+% DisableKeysForKbCheck([]);
 WaitKeyPress(p.keys.start);
 Screen('TextSize',p.ptb.window,28);
 
@@ -208,7 +236,7 @@ for trl = 1:size(countBalMat,1)
     end
     T.event01_fixation_onset(trl)         = Screen('Flip', p.ptb.window);
     T.event01_fixation_biopac(trl)        = biopac_linux_matlab(biopac, channel_fixation, 1);
-    WaitSecs(jitter1);
+    WaitSecs('UntilTime', T.event01_fixation_onset(trl) + jitter1);
     jitter1_end                           = biopac_linux_matlab(biopac, channel_fixation, 0);
     T.event01_fixation_duration(trl)      = jitter1_end - T.event01_fixation_onset(trl);
 
@@ -221,12 +249,13 @@ for trl = 1:size(countBalMat,1)
     if countBalMat.isText(trl)
         text_filename = [countBalMat.stimulus_filename{trl}];
         text_file = fullfile(dir_text, text_filename);
-        text_time = showText(text_file,p);
-        size(text_time);
+        first_text_onsettime = showText(text_file,p);
+%         size(text_time);
+        
         T.event02_text_biopac(trl)        = biopac_linux_matlab(biopac, channel_text, 1);
-       % T.event02_administer_type{trl}    = 'text';
+        T.event02_administer_type(trl)    = 'text';
 
-        %T.event02_administer_onset(trl) = text_time;
+        T.event02_administer_onset(trl) = first_text_onsettime;
         biopac_linux_matlab(biopac, channel_text, 0);
 
     else
@@ -236,13 +265,13 @@ for trl = 1:size(countBalMat,1)
         audio_time = playAudio(audio_file,y{trl},freq{trl});
         biopac_linux_matlab(biopac, channel_audio, 0);
         T.event02_administer_onset(trl) = audio_time;
-%        T.event02_administer_type{trl}    = {'audio'};
+        T.event02_administer_type(trl)    = 'audio';
     end
 
     %% 3. rating of feelings ___________________________________________________
     T.event03_feel_displayonset(trl) = GetSecs;
     T.event03_feel_biopac(trl)          = biopac_linux_matlab(biopac, channel_feel, 1);
-    [trajectory, RT, buttonPressOnset] = circular_rating_output(2,p,rating_tex,'FEEL');
+    [trajectory, RT, buttonPressOnset] = circular_rating_output(4,p,rating_tex,'FEEL');
     biopac_linux_matlab(biopac, channel_feel, 0);
     rating_Trajectory{trl,1} = trajectory;
     T.event03_feel_responseonset(trl) = buttonPressOnset;
@@ -251,14 +280,14 @@ for trl = 1:size(countBalMat,1)
     %% 3. rating of expectations ___________________________________________________
     T.event04_expect_displayonset(trl) = GetSecs;
     T.event04_expect_biopac(trl)          = biopac_linux_matlab(biopac, channel_expect, 1);
-    [trajectory, RT, buttonPressOnset] = circular_rating_output(2,p,rating_tex,'EXPECT');
+    [trajectory, RT, buttonPressOnset] = circular_rating_output(4,p,rating_tex,'EXPECT');
     biopac_linux_matlab(biopac, channel_expect, 0);
     rating_Trajectory{trl,2} = trajectory;
     T.event04_expect_responseonset(trl) = buttonPressOnset;
     T.event04_expect_RT(trl) = RT;
 
         %% ________________________ 7. temporarily save file _______________________
-    tmp_file_name = fullfile(sub_save_dir,[strcat('sub-', sprintf('%04d', sub)), '_task-',taskname,'_TEMPbeh.csv' ]);
+    tmp_file_name = fullfile(sub_save_dir,[strcat('sub-', sprintf('%04d', sub)),strcat('_run-', sprintf('%02d', o_run_num)), '_task-',taskname,'_TEMPbeh.csv' ]);
     writetable(T,tmp_file_name);
 %     Screen('Close'); % HEEJUNG see if this helps
 end
@@ -273,20 +302,17 @@ T.param_experiment_duration(:) = T.param_end_instruct_onset(1) - T.param_trigger
 Screen('Close');
 
 %% save parameter ______________________________________________________________
-saveFileName = fullfile(sub_save_dir,[strcat('sub-', sprintf('%04d', sub)), ...
-    strcat('_run-', sprintf('%04d', o_run_num)), '_task-',taskname,'_beh.csv' ]);
+saveFileName = fullfile(sub_save_dir,[bids_string,'_beh.csv' ]);
 repoFileName = fullfile(repo_save_dir,[bids_string,'_beh.csv' ]);
 writetable(T,saveFileName);
 writetable(T,repoFileName);
 
-traject_saveFileName = fullfile(sub_save_dir, [strcat('sub-', sprintf('%03d', sub)), ...
-    strcat('_run-', sprintf('%04d', o_run_num)), '_task-',taskname,'_beh_trajectory.mat' ]);
+traject_saveFileName = fullfile(sub_save_dir, [bids_string,'_beh_trajectory.mat' ]);
 traject_repoFileName = fullfile(repo_save_dir, [bids_string,'_beh_trajectory.mat' ]);
 save(traject_saveFileName, 'rating_Trajectory');
 save(traject_repoFileName, 'rating_Trajectory');
 
-psychtoolbox_saveFileName = fullfile(sub_save_dir, [strcat('sub-', sprintf('%04d', sub)),...
-    strcat('_run-', sprintf('%04d', o_run_num)), '_task-',taskname,'_psychtoolbox_params.mat' ]);
+psychtoolbox_saveFileName = fullfile(sub_save_dir, [bids_string,'_psychtoolbox_params.mat' ]);
 psychtoolbox_repoFileName = fullfile(repo_save_dir, [bids_string,'_psychtoolbox_params.mat' ]);
 save(psychtoolbox_saveFileName, 'p');
 save(psychtoolbox_repoFileName, 'p');
@@ -300,7 +326,7 @@ end
 %-------------------------------------------------------------------------------
     function [time] = biopac_linux_matlab(biopac, channel_num, state_num)
         if biopac
-            d.setFIOState(pyargs('fioNum', int64(channel_num), 'state', int64(state_num)))
+            b.setFIOState(pyargs('fioNum', int64(channel_num), 'state', int64(state_num)))
             time = GetSecs;
         else
             time = GetSecs;
@@ -348,10 +374,6 @@ end
         t1 = PsychPortAudio('Start', pahandle, 1, 0, 1);
         pause(size(y,1)/freq);
 
-
-
-
-
         % Stop playback:
         PsychPortAudio('Stop', pahandle);
 
@@ -362,7 +384,6 @@ end
 
     function WaitKeyPress(kID)
         while KbCheck(-3); end  % Wait until all keys are released.
-
         while 1
             % Check the state of the keyboard.
             [ keyIsDown, ~, keyCode ] = KbCheck(-3);
@@ -380,7 +401,7 @@ end
         end
     end
 % Function by Phil Kragel
-    function timing=showText(textfilename,p)
+    function first_text_onsettime=showText(textfilename,p)
         % Read text file from filesystem:
 
         fid = fopen(textfilename, 'r');
@@ -410,9 +431,10 @@ end
             DrawFormattedText(p.ptb.window,text_to_show{1},'center',dspl.ycenter,255);
             timing.initialized(ci) = Screen('Flip',p.ptb.window);
             pause(length(d:min(d+9,length(split_text)))/3)
+
         end
 %         Screen('Close')
-
+        first_text_onsettime = timing.initialized(1);
     end
 ShowCursor;
 end
