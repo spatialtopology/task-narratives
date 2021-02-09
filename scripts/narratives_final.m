@@ -84,7 +84,8 @@ shuffled_run_num=reorder(run_num);
 
 %% B. Directories ______________________________________________________________
 
-addpath(genpath(pwd))
+%addpath(genpath(pwd))
+script_dir = pwd;
 main_dir                       = fileparts(script_dir); % '/home/spacetop/repos/narratives';
 repo_dir                       = fileparts(fileparts(script_dir)); % '/home/spacetop/repos'
 taskname                       = 'narratives';
@@ -125,7 +126,7 @@ vnames = {'src_subject_id', 'session_id','param_run_num','shuffled_run_from_coun
     'param_stimulus_filename','param_trigger_onset','param_start_biopac'...
     'event01_fixation_onset','event01_fixation_biopac','event01_fixation_duration',...
     'event02_administer_type','event02_administer_onset',...
-    'event02_text_biopac', 'event02_audio_biopac', ...
+    'event02_administer_biopac',  ...
     'event03_feel_displayonset','event03_feel_responseonset','event03_feel_RT', 'event03_feel_biopac',...
     'event04_expect_displayonset','event04_expect_responseonset','event04_expect_RT', 'event04_expect_biopac', ...
     'param_end_biopac', 'param_end_instruct_onset' ,'param_experiment_duration'};
@@ -133,7 +134,7 @@ varTypes = {'double', 'double', 'double', 'double', 'double', ...
     'string', 'double', 'double', ...
     'double', 'double', 'double',...
     'string', 'double',...
-    'double', 'double',...
+    'double', ...
     'double', 'double', 'double', 'double', ...
     'double', 'double', 'double', 'double', ...
     'double', 'double', 'double'};
@@ -252,7 +253,7 @@ for trl = 1:size(countBalMat,1)
         first_text_onsettime = showText(text_file,p);
 %         size(text_time);
         
-        T.event02_text_biopac(trl)        = biopac_linux_matlab(biopac, channel_text, 1);
+        T.event02_administer_biopac(trl)        = biopac_linux_matlab(biopac, channel_text, 1);
         T.event02_administer_type(trl)    = 'text';
 
         T.event02_administer_onset(trl) = first_text_onsettime;
@@ -261,7 +262,7 @@ for trl = 1:size(countBalMat,1)
     else
         audio_filename = [countBalMat.stimulus_filename{trl}];
         audio_file = fullfile(dir_audio, audio_filename);
-        T.event02_audio_biopac(trl)        = biopac_linux_matlab(biopac, channel_audio, 1);
+        T.event02_administer_biopac(trl)        = biopac_linux_matlab(biopac, channel_audio, 1);
         audio_time = playAudio(audio_file,y{trl},freq{trl});
         biopac_linux_matlab(biopac, channel_audio, 0);
         T.event02_administer_onset(trl) = audio_time;
@@ -351,7 +352,7 @@ end
         end
 
         %device = [];
-        device = [3];
+        device = [5];
 
         try
             % Try with the 'freq'uency we wanted:

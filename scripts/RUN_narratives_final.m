@@ -1,16 +1,18 @@
 
-% 1. grab participant number ___________________________________________________
+% 1. grab participant number 
 
-prompt = 'subject number (in raw number form, e.g. 1, 2,...,98): ';
+prompt = 'PARTICIPANT number (in raw number form, e.g. 1, 2,...,98): ';
 sub = input(prompt);
 
-prompt = ' run number (in raw number form, i.e. 1, 2, or 3): ';
+prompt = 'RUN number (1, 2, 3, 4): ';
 srun = input(prompt);
 
 prompt = 'BIOPAC (YES=1 NO=0) : ';
 biopac = input(prompt);
 
-narratives_final(sub, srun, biopac)
+fmri = 0;
+
+narratives_final(sub, srun, biopac, fmri)
 
 
 
