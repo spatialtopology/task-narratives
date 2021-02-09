@@ -119,6 +119,21 @@ if rem(sub,2)+1==1
 end
 
 
+% empty options for video Screen
+shader = [];
+pixelFormat = [];
+maxThreads = [];
+
+iteration = 0;
+escape = 0;
+
+% Use blocking wait for new frames by default:
+blocking = 1;
+
+% Default preload setting:
+preloadsecs = [];
+% Playbackrate defaults to 1:
+rate=1;
 
 
 %% C. making output table ________________________________________________________
@@ -164,7 +179,7 @@ p.keys.end                     = KbName('e');
 % [id, name]                     = GetKeyboardIndices;
 % trigger_index                  = find(contains(name, 'Current Designs'));
 % trigger_inputDevice            = id(trigger_index);
-% 
+%
 % keyboard_index                 = find(contains(name, 'AT Translated Set 2 Keyboard'));
 % keyboard_inputDevice           = id(keyboard_index);
 
@@ -181,6 +196,7 @@ image_scale                    = fullfile(image_filepath,image_scale_filename);
 DrawFormattedText(p.ptb.window,sprintf('LOADING\n\n0%% complete'),'center','center',p.ptb.white );
 Screen('Flip',p.ptb.window);
 for trl = 1:size(countBalMat,1)
+    preloadsecs =[];
     if countBalMat.isText(trl)
 %         text_filename = [countBalMat.stimulus_filename{trl}];
 %         text_file = fullfile(dir_text, text_filename);
@@ -189,7 +205,13 @@ for trl = 1:size(countBalMat,1)
     else
         audio_filename = [countBalMat.stimulus_filename{trl}];
         audio_file = fullfile(dir_audio, audio_filename);		% Read audio file from filesystem:
-        [y{trl}, freq{trl}] = audioread(audio_file);
+        %[y{trl}, freq{trl}] = audioread(audio_file);
+
+        %preloadsecs =[];
+        %video_file      = fullfile(main_dir, 'stimuli', 'videos',strcat('ses-',sprintf('%02d', ses_num)),...
+        %    strcat('run-',sprintf('%02d', r)), T.param_video_filename{v});
+        [movie{trl}, dur{trl}, fps{trl}, imgw{trl}, imgh{trl}] = Screen('OpenMovie', p.ptb.window, audio_file, [], preloadsecs, [], pixelFormat, maxThreads);
+
     end
     DrawFormattedText(p.ptb.window,sprintf('LOADING\n\n%d%% complete', ceil(100*trl/size(countBalMat,1))),'center','center',p.ptb.white);
     Screen('Flip',p.ptb.window);
@@ -251,8 +273,8 @@ for trl = 1:size(countBalMat,1)
         text_filename = [countBalMat.stimulus_filename{trl}];
         text_file = fullfile(dir_text, text_filename);
         first_text_onsettime = showText(text_file,p);
-%         size(text_time);
-        
+%         size(text_time)
+
         T.event02_administer_biopac(trl)        = biopac_linux_matlab(biopac, channel_text, 1);
         T.event02_administer_type(trl)    = 'text';
 
@@ -263,10 +285,79 @@ for trl = 1:size(countBalMat,1)
         audio_filename = [countBalMat.stimulus_filename{trl}];
         audio_file = fullfile(dir_audio, audio_filename);
         T.event02_administer_biopac(trl)        = biopac_linux_matlab(biopac, channel_audio, 1);
-        audio_time = playAudio(audio_file,y{trl},freq{trl});
-        biopac_linux_matlab(biopac, channel_audio, 0);
-        T.event02_administer_onset(trl) = audio_time;
+        % audio_time = playAudio(audio_file,y{trl},freq{trl});
+        totalframes = floor(fps{trl} * dur{trl});
+        %fprintf('Movie: %s  : %f seconds duration, %f fps, w x h = %i x %i...\n', T.param_video_filename{trl}, dur{trl}, fps{trl}, imgw{trl}, imgh{trl});
+        %disp('line 381')
+        i=0;
+        Screen('PlayMovie', movie{trl}, rate, 1, 1.0);
+
+       % biopac_linux_matlab(biopac, channel_audio, 0);
+        %COMMENT BACK IN
+        %T.event02_administer_onset(trl) = audio_time;
         T.event02_administer_type(trl)    = 'audio';
+
+        while i<totalframes-1
+
+            escape=0;
+            [keyIsDown,secs,keyCode]=KbCheck;
+            if (keyIsDown==1 && keyCode(p.keys.esc))
+                % Set the abort-demo flag.
+                escape=2;
+                % break;
+            end
+
+
+            % Only perform video image fetch/drawing if playback is active
+            % and the movie actually has a video track (imgw and imgh > 0):
+
+            if ((abs(rate)>0) && (imgw{trl}>0) && (imgh{trl}>0))
+                % Return next frame in movie, in sync with current playback
+                % time and sound.
+                % tex is either the positive texture handle or zero if no
+                % new frame is ready yet in non-blocking mode (blocking == 0).
+                % It is -1 if something went wrong and playback needs to be stopped:
+                tex = Screen('GetMovieImage', p.ptb.window, movie{trl}, blocking);
+
+                % Valid texture returned?
+                if tex < 0
+                    % No, and there wont be any in the future, due to some
+                    % error. Abort playback loop:
+                    %  break;
+                end
+
+                if tex == 0
+                    % No new frame in polling wait (blocking == 0). Just sleep
+                    % a bit and then retry.
+                    WaitSecs('YieldSecs', 0.005);
+                    continue;
+                end
+
+                Screen('DrawTexture', p.ptb.window, tex, [], [], [], [], [], [], shader); % Draw the new texture immediately to screen:
+                Screen('Flip', p.ptb.window); % Update display:
+                Screen('Close', tex);% Release texture:
+                i=i+1; % Framecounter:
+
+            end % end if statement for grabbing next frame
+        end % end while statement for playing until no more frames exist
+
+        T.event01_video_end(trl) = GetSecs;
+        %T.event01_biopac_stop(trl) = biopac_video(biopac, channel.movie, 0);
+
+        Screen('Flip', p.ptb.window);
+        KbReleaseWait;
+
+        Screen('PlayMovie', movie{trl}, 0); % Done. Stop playback:
+        Screen('CloseMovie', movie{trl});  % Close movie object:
+
+        % Release texture:
+        %         Screen('Close', tex);
+
+        % if escape is pressed during video, exit
+        if escape==2
+            %break
+        end
+
     end
 
     %% 3. rating of feelings ___________________________________________________
@@ -318,7 +409,7 @@ psychtoolbox_repoFileName = fullfile(repo_save_dir, [bids_string,'_psychtoolbox_
 save(psychtoolbox_saveFileName, 'p');
 save(psychtoolbox_repoFileName, 'p');
 
-sca; 
+sca;
 if biopac
     b.close()
 end
@@ -352,7 +443,7 @@ end
         end
 
         %device = [];
-        device = [5];
+        device = [6];
 
         try
             % Try with the 'freq'uency we wanted:
