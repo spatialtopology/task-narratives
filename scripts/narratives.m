@@ -1,4 +1,4 @@
-function narratives(sub, run_num, biopac, fMRI)
+function narratives_final(sub, run_num, biopac, fMRI)
 %% -----------------------------------------------------------------------------
 %                           Parameters
 % ------------------------------------------------------------------------------
@@ -431,7 +431,7 @@ end
         % Read audio file from filesystem:
         % [y, freq] = audioread(audiofilename);
         wavedata = y';
-        nrchannels = size(wavedata,1); % Number of rows == number of channels.
+        nrchannels = size(wavedata,1); % Number of rows == number of channels.'
 
         % Make sure we have always 2 channels stereo output.
         % Why? Because some low-end and embedded soundcards
@@ -487,7 +487,7 @@ end
                 elseif keyCode(kID)
                     break;
                 end
-                % make sure key's released
+                % make sure key is released
                 while KbCheck(-3); end
             end
         end
