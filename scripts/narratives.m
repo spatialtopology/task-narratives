@@ -1,3 +1,4 @@
+
 function narratives(sub, run_num, biopac, fMRI)
 %% -----------------------------------------------------------------------------
 %                           Parameters
@@ -179,6 +180,11 @@ image_filepath                 = fullfile(main_dir,'stimuli','ratingscale');
 image_scale_filename           = lower(['task-',taskname,'_scale.jpg']);
 image_scale                    = fullfile(image_filepath,image_scale_filename);
 fixation_path                  = fullfile(main_dir, 'stimuli', 'crosshair.png');
+instruct_filepath              = fullfile(main_dir, 'stimuli', 'instructions');
+instruct_start                 = fullfile(instruct_filepath, 'start.png');
+instruct_trigger               = fullfile(instruct_filepath, 'trigger.png');
+instruct_end                   = fullfile(instruct_filepath, 'end.png');
+
 %% preload
 DrawFormattedText(p.ptb.window,sprintf('LOADING\n\n0%% complete'),'center','center',p.ptb.white );
 Screen('Flip',p.ptb.window);
@@ -203,6 +209,10 @@ for trl = 1:size(countBalMat,1)
     DrawFormattedText(p.ptb.window,sprintf('LOADING\n\n%d%% complete', ceil(100*trl/size(countBalMat,1))),'center','center',p.ptb.white);
     Screen('Flip',p.ptb.window);
 end
+
+start_tex       = Screen('MakeTexture',p.ptb.window, imread(instruct_start));
+trigger_tex       = Screen('MakeTexture',p.ptb.window, imread(instruct_trigger));
+end_tex       = Screen('MakeTexture',p.ptb.window, imread(instruct_end));
 rating_tex = Screen('MakeTexture', p.ptb.window, imread(image_scale)); % pure rating scale
 fixation_tex = Screen('MakeTexture', p.ptb.window, imread(fixation_path));
 %% -----------------------------------------------------------------------------
@@ -210,23 +220,31 @@ fixation_tex = Screen('MakeTexture', p.ptb.window, imread(fixation_path));
 % ------------------------------------------------------------------------------
 
 %% ______________________________ Instructions _________________________________
-Screen('TextSize',p.ptb.window,72);
-DrawFormattedText(p.ptb.window,'.','center',p.ptb.screenYpixels/2,255);
+%Screen('TextSize',p.ptb.window,72);
+%DrawFormattedText(p.ptb.window,'.','center',p.ptb.screenYpixels/2,255);
+%Screen('Flip',p.ptb.window);
+Screen('DrawTexture',p.ptb.window,start_tex,[],[]);
 Screen('Flip',p.ptb.window);
-
 %% _______________________ Wait for Trigger to Begin ___________________________
 
 % DisableKeysForKbCheck([]);
 WaitKeyPress(p.keys.start);
-Screen('TextSize',p.ptb.window,28);
-
-DrawFormattedText(p.ptb.window,'Waiting for trigger','center',p.ptb.screenYpixels/2,255);
-
+%Screen('TextSize',p.ptb.window,28);
+%DrawFormattedText(p.ptb.window,'Waiting for trigger','center',p.ptb.screenYpixels/2,255);
+% flips to fixation after immediately pressing s
+Screen('DrawLines', p.ptb.window, p.fix.allCoords,...
+    p.fix.lineWidthPix, p.ptb.white, [p.ptb.xCenter p.ptb.yCenter], 2);
 Screen('Flip',p.ptb.window);
+
+
 WaitKeyPress(p.keys.trigger);
 % T.param_trigger_onset(:)                = KbTriggerWait(p.keys.trigger, trigger_inputDevice);
 T.param_trigger_onset(:) = GetSecs;
 T.param_start_biopac(:)                   = biopac_linux_matlab(channel, channel.trigger, 1);
+
+%% ___________________________ Dummy scans ____________________________
+Screen('DrawTexture',p.ptb.window,trigger_tex,[],[]);
+Screen('Flip',p.ptb.window);
 
 WaitSecs(TR*6);
 
@@ -308,8 +326,9 @@ for trl = 1:size(countBalMat,1)
 end
 
 %% ______________________________ End Instructions _________________________________
-Screen('TextSize',p.ptb.window,72);
-DrawFormattedText(p.ptb.window,'Run Finished','center',p.ptb.screenYpixels/2,255);
+%Screen('TextSize',p.ptb.window,72);
+%DrawFormattedText(p.ptb.window,'Run Finished','center',p.ptb.screenYpixels/2,255);
+Screen('DrawTexture',p.ptb.window,end_tex,[],[]);
 T.param_end_instruct_onset(:)             = Screen('Flip',p.ptb.window);
 T.param_end_biopac(:)                     = biopac_linux_matlab(channel, channel.trigger, 0);
 WaitKeyPress(KbName('e'));
@@ -332,10 +351,9 @@ psychtoolbox_repoFileName = fullfile(repo_save_dir, [bids_string,'_psychtoolbox_
 save(psychtoolbox_saveFileName, 'p');
 save(psychtoolbox_repoFileName, 'p');
 
-sca;
-if channel.biopac
-    channel.d.close()
-end
+if channel.biopac;  channel.d.close();  end
+clear p; clearvars; Screen('Close'); close all; sca;
+
 %% -----------------------------------------------------------------------------
 %                                   Function
 %-------------------------------------------------------------------------------
